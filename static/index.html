@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Potato Disease Prediction</title>
+    <style>
+        /* CSS for image preview section */
+        #imagePreview {
+            max-width: 400px;
+            max-height: 400px;
+        }
+
+        /* CSS for prediction result section */
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Potato Disease Prediction</h1>
+    <form id="predictForm" enctype="multipart/form-data">
+        <input type="file" name="image" id="imageInput">
+        <button type="button" onclick="predict()">Predict</button>
+    </form>
+
+    <!-- Image preview section -->
+    <div id="imagePreview"></div>
+
+    <!-- Prediction result section -->
+    <div id="result"></div>
+
+    <script>
+        function predict() {
+            const form = document.getElementById('predictForm');
+            const formData = new FormData(form);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the image preview section
+                const imagePreviewDiv = document.getElementById('imagePreview');
+                const imageInput = document.getElementById('imageInput');
+                const file = imageInput.files[0];
+                const reader = new FileReader();
+
+                reader.onloadend = function() {
+                    const img = document.createElement('img');
+                    img.src = reader.result;
+                    imagePreviewDiv.innerHTML = '';
+                    imagePreviewDiv.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+
+                // Update the prediction result section
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `Prediction: ${data.prediction}, Probabilities: ${data.probabilities}`;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
